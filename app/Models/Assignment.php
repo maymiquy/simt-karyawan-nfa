@@ -14,11 +14,15 @@ class Assignment extends Model
         'user_id',
         'assigned_by',
         'progress',
+        'completion_notes',
+        'manager_notes',
         'submitted_at',
+        'reviewed_at',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'reviewed_at'  => 'datetime',
     ];
 
     public function task()
