@@ -26,6 +26,13 @@ Route::get('/', function () {
 Route::get('/login',  [LoginController::class, 'show'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'store'])->middleware('guest');
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->middleware('auth');
+// Fallback GET logout: handle expired session / langsung klik link logout
+Route::get('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('login');
+})->middleware('auth');
 
 // Manager routes (Fase 4)
 Route::middleware(['auth', 'role:Admin|Manager'])->prefix('manager')->name('manager.')->group(function () {
