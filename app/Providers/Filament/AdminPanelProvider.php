@@ -2,7 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Reports;
+use App\Filament\Widgets\OverdueTasksTable;
 use App\Filament\Widgets\StatsOverview;
+use App\Filament\Widgets\TasksChart;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -34,10 +37,14 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('2.5rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([])
+            ->pages([
+                Reports::class,
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 StatsOverview::class,
+                TasksChart::class,
+                OverdueTasksTable::class,
             ])
             ->middleware([
                 EncryptCookies::class,
