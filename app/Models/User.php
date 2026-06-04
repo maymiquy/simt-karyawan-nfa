@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Assignment;
+use App\Models\Task;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,5 +38,15 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
+    public function createdTasks()
+    {
+        return $this->hasMany(Task::class, 'created_by');
     }
 }
