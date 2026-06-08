@@ -90,7 +90,13 @@ class TaskController extends Controller
     public function show(int $id): View
     {
         $task = $this->baseQuery()
-            ->with(['creator', 'assignments.user', 'assignments.assignedBy'])
+            ->with([
+                'creator',
+                'assignments.user',
+                'assignments.assignedBy',
+                'assignments.activities',
+                'assignments.logs' => fn ($q) => $q->with('user')->oldest(),
+            ])
             ->findOrFail($id);
 
         $employees = User::role('Employee')

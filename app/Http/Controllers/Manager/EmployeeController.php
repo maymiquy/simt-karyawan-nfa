@@ -15,10 +15,11 @@ class EmployeeController extends Controller
     {
         $employees = User::role('Employee')
             ->withCount(['assignments as active_tasks_count' => function ($q) {
-                $q->whereIn('progress', ['not_started', 'on_progress']);
+                $q->whereIn('progress', ['not_started', 'on_progress', 'submitted', 'revision']);
             }])
             ->orderBy('name')
             ->get();
+        // KPI dihitung via accessor $employee->kpi_percent di view.
 
         return view('manager.employees.index', compact('employees'));
     }

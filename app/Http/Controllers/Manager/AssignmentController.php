@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\AssignmentLog;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AssignmentController extends Controller
 {
@@ -48,20 +50,57 @@ class AssignmentController extends Controller
         })->findOrFail($id);
 
         $request->validate([
-            'action'       => ['required', 'in:approve,revision'],
+            'action'        => ['required', 'in:approve,revision'],
             'manager_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $progress = $request->action === 'approve' ? 'done' : 'revision';
+        // Hanya assignment yang sudah disubmit yang bisa direview.
+        if ($assignment->progress !== 'submitted') {
+            return back()->with('error', 'Hanya laporan yang sudah dikirim yang bisa direview.');
+        }
 
-        $assignment->update([
-            'progress'      => $progress,
-            'manager_notes' => $request->manager_notes,
-            'reviewed_at'   => now(),
-        ]);
+        DB::transaction(function () use ($assignment, $request) {
+            if ($request->action === 'approve') {
+                // Finalisasi KPI saat disetujui.
+                $kpi = $assignment->computeKpiScore();
+
+                $assignment->update([
+                    'progress'      => 'done',
+                    'manager_notes' => $request->manager_notes,
+                    'reviewed_at'   => now(),
+                    'kpi_score'     => $kpi,
+                ]);
+
+                AssignmentLog::create([
+                    'assignment_id' => $assignment->id,
+                    'user_id'       => Auth::id(),
+                    'type'          => 'approved',
+                    'notes'         => $request->manager_notes,
+                    'meta'          => [
+                        'kpi'  => $kpi,
+                        'late' => $assignment->isLate(),
+                    ],
+                ]);
+            } else {
+                $assignment->update([
+                    'progress'       => 'revision',
+                    'manager_notes'  => $request->manager_notes,
+                    'reviewed_at'    => now(),
+                    'revision_count' => $assignment->revision_count + 1,
+                ]);
+
+                AssignmentLog::create([
+                    'assignment_id' => $assignment->id,
+                    'user_id'       => Auth::id(),
+                    'type'          => 'revised',
+                    'notes'         => $request->manager_notes,
+                    'meta'          => ['revision_no' => $assignment->revision_count],
+                ]);
+            }
+        });
 
         $message = $request->action === 'approve'
-            ? 'Laporan disetujui.'
+            ? 'Laporan disetujui & KPI dihitung.'
             : 'Tugas dikembalikan untuk revisi.';
 
         return back()->with('success', $message);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\AssignmentLog;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +49,13 @@ class DashboardController extends Controller
             ];
         });
 
+        // Feed aktivitas informatif (timeline lifecycle) untuk tugas milik manager/admin.
+        $recentLogs = AssignmentLog::with(['user', 'assignment.user', 'assignment.task'])
+            ->when(! $isAdmin, fn ($q) => $q->whereHas('assignment.task', fn ($t) => $t->where('created_by', $managerId)))
+            ->latest()
+            ->take(12)
+            ->get();
+
         return view('manager.dashboard', compact(
             'totalTasks',
             'inProgressTasks',
@@ -55,6 +63,7 @@ class DashboardController extends Controller
             'overdueTasks',
             'activeTasks',
             'chartData',
+            'recentLogs',
         ));
     }
 }
