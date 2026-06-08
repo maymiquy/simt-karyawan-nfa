@@ -8,6 +8,7 @@ use App\Http\Controllers\Manager\TaskController as ManagerTaskController;
 use App\Http\Controllers\Manager\AssignmentController as ManagerAssignmentController;
 use App\Http\Controllers\Manager\EmployeeController as ManagerEmployeeController;
 use App\Http\Controllers\Manager\ReportController as ManagerReportController;
+use App\Http\Controllers\Manager\ActivityLogController as ManagerActivityLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,9 @@ Route::middleware(['auth', 'role:Admin|Manager'])->prefix('manager')->name('mana
     // Employees
     Route::get('/employees',  [ManagerEmployeeController::class, 'index'])->name('employees.index');
     Route::post('/employees', [ManagerEmployeeController::class, 'store'])->name('employees.store');
+
+    // Log Aktivitas (timeline per karyawan)
+    Route::get('/activity', [ManagerActivityLogController::class, 'index'])->name('activity.index');
 
     // Reports
     Route::get('/reports',                [ManagerReportController::class, 'index'])->name('reports.index');
