@@ -9,3 +9,48 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ── Dark mode: class-based strategy (Tailwind v4) ── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ============================================
+   CUSTOM UTILITIES
+   ============================================ */
+
+@layer utilities {
+    .page-fade {
+        animation: pageFadeIn 0.2s ease-out;
+    }
+    .card-hover {
+        @apply transition-all duration-200 hover:shadow-md hover:-translate-y-px;
+    }
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.97) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+.pulse-dot { animation: pulseDot 1.5s ease-in-out infinite; }
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+input:focus, select:focus, textarea:focus { outline: none; }
+aside { will-change: transform; }
+tbody tr { @apply transition-colors duration-100; }
+nav[role="navigation"] a,
+nav[role="navigation"] span { @apply text-sm; }
