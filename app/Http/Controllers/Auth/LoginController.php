@@ -34,6 +34,9 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        session()->flash('success', 'Selamat datang, ' . $user->name . '!');
+
         return $this->redirectByRole();
     }
 
@@ -44,7 +47,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('login')->with('info', 'Anda telah berhasil keluar.');
     }
 
     private function redirectByRole(): RedirectResponse
@@ -52,7 +55,7 @@ class LoginController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole('Admin')) {
-            return redirect('/admin');
+            return redirect('/admin')->with('success', 'Selamat datang, ' . $user->name . '!');
         }
 
         if ($user->hasRole('Manager')) {
