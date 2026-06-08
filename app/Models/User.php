@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Assignment;
 use App\Models\Task;
+use App\Services\KpiService;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,5 +49,13 @@ class User extends Authenticatable implements FilamentUser
     public function createdTasks()
     {
         return $this->hasMany(Task::class, 'created_by');
+    }
+
+    /**
+     * Persentase KPI karyawan (null bila belum ada tugas disetujui).
+     */
+    public function getKpiPercentAttribute(): ?int
+    {
+        return app(KpiService::class)->percentForUser($this);
     }
 }

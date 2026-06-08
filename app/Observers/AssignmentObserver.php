@@ -4,19 +4,38 @@ namespace App\Observers;
 
 use App\Models\ActivityLog;
 use App\Models\Assignment;
+use App\Models\AssignmentLog;
 use App\Models\Task;
 
 class AssignmentObserver
 {
+    public function creating(Assignment $assignment): void
+    {
+        // Catat waktu assign otomatis (referensi untuk timeline & KPI).
+        if (! $assignment->assigned_at) {
+            $assignment->assigned_at = now();
+        }
+    }
+
     public function created(Assignment $assignment): void
     {
         $employeeName = $assignment->user->name ?? 'Unknown';
         $taskTitle    = $assignment->task->title ?? 'Unknown';
 
+        // Audit log global (panel admin).
         ActivityLog::create([
             'user_id'     => auth()->id() ?? $assignment->assigned_by,
             'action'      => 'assignment_created',
             'description' => "{$employeeName} ditugaskan ke task \"{$taskTitle}\"",
+        ]);
+
+        // Timeline lifecycle assignment (dashboard manager & karyawan).
+        AssignmentLog::create([
+            'assignment_id' => $assignment->id,
+            'user_id'       => auth()->id() ?? $assignment->assigned_by,
+            'type'          => 'created',
+            'notes'         => null,
+            'meta'          => null,
         ]);
     }
 
@@ -70,7 +89,7 @@ class AssignmentObserver
         }
 
         $allDone     = collect($allProgresses)->every(fn ($p) => $p === 'done');
-        $anyProgress = collect($allProgresses)->contains(fn ($p) => in_array($p, ['on_progress', 'done', 'revision']));
+        $anyProgress = collect($allProgresses)->contains(fn ($p) => in_array($p, ['on_progress', 'submitted', 'done', 'revision']));
 
         $newStatus = match (true) {
             $allDone     => 'completed',
