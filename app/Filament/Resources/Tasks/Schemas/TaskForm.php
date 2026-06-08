@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Tasks\Schemas;
 
 use App\Models\User;
-use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -48,8 +48,9 @@ class TaskForm
                     ->default('medium')
                     ->required(),
 
-                DatePicker::make('due_date')
-                    ->label('Tanggal Tenggat'),
+                DateTimePicker::make('due_date')
+                    ->label('Tanggal & Jam Tenggat')
+                    ->seconds(false),
 
                 Select::make('created_by')
                     ->label('Dibuat oleh')

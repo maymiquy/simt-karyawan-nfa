@@ -41,27 +41,30 @@ class AssignmentForm
                     ->options([
                         'not_started' => 'Belum Mulai',
                         'on_progress' => 'Sedang Proses',
-                        'done'        => 'Selesai',
+                        'submitted'   => 'Menunggu Review',
+                        'done'        => 'Disetujui',
                         'revision'    => 'Perlu Revisi',
                     ])
                     ->default('not_started')
                     ->required(),
 
-                Textarea::make('completion_notes')
-                    ->label('Laporan Penyelesaian')
-                    ->rows(3)
+                Textarea::make('communication_note')
+                    ->label('Catatan Komunikasi (Karyawan)')
+                    ->rows(2)
                     ->columnSpanFull(),
 
                 Textarea::make('manager_notes')
                     ->label('Catatan Manager')
-                    ->rows(3)
+                    ->rows(2)
                     ->columnSpanFull(),
 
                 DateTimePicker::make('submitted_at')
-                    ->label('Dikirim pada'),
+                    ->label('Dikirim pada')
+                    ->seconds(false),
 
                 DateTimePicker::make('reviewed_at')
-                    ->label('Ditinjau pada'),
+                    ->label('Ditinjau pada')
+                    ->seconds(false),
             ]);
     }
 }

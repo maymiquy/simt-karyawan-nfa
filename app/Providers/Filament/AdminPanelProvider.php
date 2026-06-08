@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Reports;
+use App\Filament\Widgets\FlashNotification;
 use App\Filament\Widgets\OverdueTasksTable;
 use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\TasksChart;
@@ -42,6 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+                FlashNotification::class,
                 StatsOverview::class,
                 TasksChart::class,
                 OverdueTasksTable::class,
