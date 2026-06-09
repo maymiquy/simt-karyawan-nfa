@@ -95,6 +95,7 @@ class TaskController extends Controller
                 'assignments.user',
                 'assignments.assignedBy',
                 'assignments.activities',
+                'assignments.attachments',
                 'assignments.logs' => fn ($q) => $q->with('user')->oldest(),
             ])
             ->findOrFail($id);

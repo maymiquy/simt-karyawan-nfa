@@ -122,6 +122,19 @@
                         </div>
                         @endif
 
+                        {{-- Lampiran bukti --}}
+                        @if($a->attachments->isNotEmpty())
+                        <div class="mt-2 flex flex-wrap gap-1.5">
+                            @foreach($a->attachments as $att)
+                            <a href="{{ $att->url() }}" target="_blank"
+                               class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <svg class="w-3.5 h-3.5 {{ $att->isImage() ? 'text-blue-500' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                <span class="truncate max-w-[120px]">{{ $att->original_name }}</span>
+                            </a>
+                            @endforeach
+                        </div>
+                        @endif
+
                         {{-- Catatan manager --}}
                         @if ($a->manager_notes)
                         <div class="mt-2 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-xs text-amber-700 dark:text-amber-300">

@@ -59,6 +59,11 @@ class Assignment extends Model
         return $this->hasMany(AssignmentLog::class);
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(AssignmentAttachment::class);
+    }
+
     /**
      * Apakah laporan dikirim setelah melewati tenggat (untuk KPI).
      */
