@@ -12,7 +12,20 @@
          submit() { this.$refs.form.submit(); }
      }">
 
+    {{-- Tab cepat --}}
+    @php $tabs = ['' => 'Semua', 'today' => 'Hari ini', 'week' => 'Minggu ini', 'overdue' => 'Terlambat']; $curDue = request('due',''); @endphp
+    <div class="flex flex-wrap gap-2 mb-3">
+        @foreach($tabs as $val => $label)
+        <a href="{{ route('employee.tasks.index', array_filter(['due'=>$val ?: null, 'search'=>request('search'), 'status'=>request('status'), 'sort'=>request('sort')])) }}"
+           class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors
+                  {{ $curDue === $val ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600' }}">
+            {{ $label }}
+        </a>
+        @endforeach
+    </div>
+
     <form method="GET" action="{{ route('employee.tasks.index') }}" x-ref="form" class="flex flex-col sm:flex-row gap-3">
+        <input type="hidden" name="due" value="{{ request('due') }}">
         <div class="relative flex-1">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +50,15 @@
             <option value="revision">Perlu Revisi</option>
         </select>
 
-        @if (request()->hasAny(['search', 'status']))
+        <select name="sort" @change="submit()"
+                class="px-3 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-xl
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-300 dark:hover:border-gray-500 transition-colors sm:w-48">
+            <option value="due"      {{ request('sort','due')==='due'      ? 'selected':'' }}>Urut: Tenggat terdekat</option>
+            <option value="priority" {{ request('sort')==='priority'        ? 'selected':'' }}>Urut: Prioritas</option>
+            <option value="duration" {{ request('sort')==='duration'        ? 'selected':'' }}>Urut: Durasi pengerjaan</option>
+        </select>
+
+        @if (request()->hasAny(['search', 'status', 'due', 'sort']))
         <a href="{{ route('employee.tasks.index') }}"
            class="px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center shrink-0">
             Reset
