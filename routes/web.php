@@ -3,6 +3,10 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\TaskController as EmployeeTaskController;
+use App\Http\Controllers\Employee\ActivityController as EmployeeActivityController;
+use App\Http\Controllers\Employee\KpiController as EmployeeKpiController;
+use App\Http\Controllers\Employee\CalendarController as EmployeeCalendarController;
+use App\Http\Controllers\Employee\NotificationController as EmployeeNotificationController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Manager\TaskController as ManagerTaskController;
 use App\Http\Controllers\Manager\AssignmentController as ManagerAssignmentController;
@@ -66,11 +70,23 @@ Route::middleware(['auth', 'role:Admin|Manager'])->prefix('manager')->name('mana
     Route::get('/reports/download/excel', [ManagerReportController::class, 'downloadExcel'])->name('reports.excel');
 });
 
-// Employee routes (Fase 3)
+// Employee routes (Fase 3 + 10)
 Route::middleware(['auth', 'role:Employee'])->prefix('employee')->name('employee.')->group(function () {
-    Route::get('/dashboard',                               [EmployeeDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/tasks',                                   [EmployeeTaskController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/{id}',                              [EmployeeTaskController::class, 'show'])->name('tasks.show');
-    Route::patch('/tasks/{id}/progress',                   [EmployeeTaskController::class, 'updateProgress'])->name('tasks.progress');
-    Route::post('/tasks/{id}/submit',                      [EmployeeTaskController::class, 'submitReport'])->name('tasks.submit');
+    Route::get('/dashboard',             [EmployeeDashboardController::class, 'index'])->name('dashboard');
+
+    // Tugas
+    Route::get('/tasks',                 [EmployeeTaskController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/{id}',            [EmployeeTaskController::class, 'show'])->name('tasks.show');
+    Route::patch('/tasks/{id}/progress', [EmployeeTaskController::class, 'updateProgress'])->name('tasks.progress');
+    Route::post('/tasks/{id}/submit',    [EmployeeTaskController::class, 'submitReport'])->name('tasks.submit');
+
+    // Aktivitas Saya, KPI, Kalender
+    Route::get('/activity',  [EmployeeActivityController::class, 'index'])->name('activity.index');
+    Route::get('/kpi',       [EmployeeKpiController::class, 'index'])->name('kpi.index');
+    Route::get('/calendar',  [EmployeeCalendarController::class, 'index'])->name('calendar.index');
+
+    // Notifikasi in-app
+    Route::get('/notifications/json',       [EmployeeNotificationController::class, 'json'])->name('notifications.json');
+    Route::post('/notifications/read-all',  [EmployeeNotificationController::class, 'readAll'])->name('notifications.readAll');
+    Route::get('/notifications/{id}/read',  [EmployeeNotificationController::class, 'read'])->name('notifications.read');
 });

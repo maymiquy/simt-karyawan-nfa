@@ -74,6 +74,33 @@
                 </svg>
                 Tugas Saya
             </a>
+            <a href="{{ route('employee.activity.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
+                      {{ request()->routeIs('employee.activity.*') ? 'bg-white/15 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Aktivitas Saya
+            </a>
+            <a href="{{ route('employee.kpi.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
+                      {{ request()->routeIs('employee.kpi.*') ? 'bg-white/15 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+                KPI Saya
+            </a>
+            <a href="{{ route('employee.calendar.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
+                      {{ request()->routeIs('employee.calendar.*') ? 'bg-white/15 text-white' : 'text-blue-100 hover:bg-white/10 hover:text-white' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Kalender Tenggat
+            </a>
         </nav>
 
         <div class="px-3 py-4 border-t border-white/10">
@@ -117,6 +144,68 @@
             </div>
 
             <div class="flex items-center gap-2">
+                {{-- Notifikasi (bell) --}}
+                @php
+                    $notifs = Auth::user()->unreadNotifications()->latest()->take(8)->get();
+                    $notifCount = Auth::user()->unreadNotifications()->count();
+                @endphp
+                <div class="relative" x-data="{
+                        open: false,
+                        count: {{ $notifCount }},
+                        async poll() {
+                            try {
+                                const r = await fetch('{{ route('employee.notifications.json') }}', {headers:{'Accept':'application/json'}});
+                                const d = await r.json();
+                                if (typeof d.unread === 'number') this.count = d.unread;
+                            } catch (e) {}
+                        }
+                     }"
+                     x-init="setInterval(() => poll(), 60000)"
+                     @click.outside="open = false">
+                    <button @click="open = !open"
+                            class="relative p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span x-show="count > 0" x-cloak
+                              class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center"
+                              x-text="count > 9 ? '9+' : count"></span>
+                    </button>
+
+                    <div x-show="open" x-cloak x-transition
+                         class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
+                        <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
+                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Notifikasi</p>
+                            @if($notifCount > 0)
+                            <form method="POST" action="{{ route('employee.notifications.readAll') }}">
+                                @csrf
+                                <button type="submit" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Tandai semua</button>
+                            </form>
+                            @endif
+                        </div>
+                        <div class="max-h-80 overflow-y-auto">
+                            @forelse($notifs as $n)
+                            @php
+                                $nt = $n->data['type'] ?? 'info';
+                                $dot = ['assigned'=>'bg-blue-500','revision'=>'bg-amber-500','deadline'=>'bg-red-500'][$nt] ?? 'bg-gray-400';
+                            @endphp
+                            <a href="{{ route('employee.notifications.read', $n->id) }}"
+                               class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-50 dark:border-gray-700/50">
+                                <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 {{ $dot }}"></span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $n->data['title'] ?? 'Notifikasi' }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $n->data['message'] ?? '' }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{{ $n->created_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            <p class="px-4 py-6 text-center text-sm text-gray-400 dark:text-gray-500">Tidak ada notifikasi baru.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Dark mode toggle --}}
                 <button @click="toggleDark()"
                         class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
