@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Assignments\Tables;
 
 use App\Models\AssignmentLog;
+use App\Notifications\EmployeeAlert;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -162,6 +163,13 @@ class AssignmentsTable
                                 'notes'         => $data['manager_notes'],
                                 'meta'          => ['revision_no' => $record->revision_count],
                             ]);
+
+                            $record->user?->notify(new EmployeeAlert(
+                                type: 'revision',
+                                title: 'Tugas diminta revisi',
+                                message: "Tugas \"{$record->task?->title}\" perlu direvisi.",
+                                assignmentId: $record->id,
+                            ));
                         });
 
                         Notification::make()

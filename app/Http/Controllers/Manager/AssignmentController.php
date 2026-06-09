@@ -7,6 +7,7 @@ use App\Models\Assignment;
 use App\Models\AssignmentLog;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\EmployeeAlert;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -96,6 +97,13 @@ class AssignmentController extends Controller
                     'notes'         => $request->manager_notes,
                     'meta'          => ['revision_no' => $assignment->revision_count],
                 ]);
+
+                $assignment->user?->notify(new EmployeeAlert(
+                    type: 'revision',
+                    title: 'Tugas diminta revisi',
+                    message: "Tugas \"{$assignment->task?->title}\" perlu direvisi.",
+                    assignmentId: $assignment->id,
+                ));
             }
         });
 

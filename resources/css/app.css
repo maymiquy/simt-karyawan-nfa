@@ -49,6 +49,8 @@
     overflow: hidden;
 }
 
+[x-cloak] { display: none !important; }
+
 input:focus, select:focus, textarea:focus { outline: none; }
 aside { will-change: transform; }
 tbody tr { @apply transition-colors duration-100; }

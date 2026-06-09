@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Assignment;
 use App\Models\AssignmentLog;
 use App\Models\Task;
+use App\Notifications\EmployeeAlert;
 
 class AssignmentObserver
 {
@@ -37,6 +38,16 @@ class AssignmentObserver
             'notes'         => null,
             'meta'          => null,
         ]);
+
+        // Notifikasi in-app ke karyawan yang ditugaskan.
+        if ($assignment->user) {
+            $assignment->user->notify(new EmployeeAlert(
+                type: 'assigned',
+                title: 'Tugas baru ditugaskan',
+                message: "Anda mendapat tugas: \"{$taskTitle}\".",
+                assignmentId: $assignment->id,
+            ));
+        }
     }
 
     public function updated(Assignment $assignment): void
